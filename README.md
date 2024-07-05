@@ -1,5 +1,9 @@
 # neural-recalibration
-Official repo of "Neural Real-Time Recalibration for Infrared Multi-Camera Systems"
+Official repo of "Neural Real-Time Recalibration for Infrared Multi-Camera Systems".\
+To use the code:
+Clone the repo, and then you can run the training/test script with the following arguments from the terminal:
+python3 dgcc_version_name.py --mode train/test --load_last_best n/y  
+the version_name could be either version of point_based or image-based provided in the repo.
 
 ---
 
