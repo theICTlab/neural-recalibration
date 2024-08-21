@@ -13,14 +13,14 @@ from torch.utils.tensorboard import SummaryWriter
 
 # Load my common files
 import sys
-sys.path.insert(1, '/home/charalambos/Documents/CODE/Common')
+# sys.path.insert(1, '/home/charalambos/Documents/CODE/Common')
 
-import utilities
 import networks
 import draw_utilities
+from datetime import datetime
 
 # Clear the console
-utilities.clear_console()
+# utilities.clear_console()
 
 # clean up previous stuff
 torch.cuda.empty_cache()
@@ -28,13 +28,13 @@ torch.cuda.empty_cache()
 # initialize the seed
 torch.manual_seed(42)
 
-utilities.set_print_mode('DEBUG')
+# utilities.set_print_mode('DEBUG')
 
 # check if there is a GPU or CPU
 number_of_devices = torch.cuda.device_count()
-utilities.cprint(f'Number of GPU devices: {number_of_devices}', type='DEBUG')
+print(f'Number of GPU devices: {number_of_devices}')
 device = torch.device('cuda' if torch.cuda.is_available() else torch.device('cpu'))
-utilities.cprint(f'Using {device}', type='DEBUG')
+print(f'Using {device}')
 ###################################################################################
 
 import torch.nn as nn
@@ -82,26 +82,34 @@ parser.add_argument("-llb", "--load_last_best", help = "Load the last best check
 args = parser.parse_args()
 
 # Format the current time as a string in the format: YYYY-MM-DD-HH-MM-SS
-timestamp_str = utilities.get_timestamp()
+def get_timestamp():
+    # Get the current time
+    now = datetime.now()
+
+    # Format the current time as a string in the format: YYYY-MM-DD-HH-MM-SS
+    timestamp_str = now.strftime("%Y-%m-%d-%H-%M-%S")
+
+    return timestamp_str
+
+timestamp_str = get_timestamp()
 
 
 # 1. Load data
-# initial_configs = pd.read_csv("camera_parameters_10.csv")
-initial_configs = pd.read_csv("camera_parameters_curve.csv")
+initial_configs = pd.read_csv("OEM_initial_calib/camera_parameters_10.csv")
 NUMBER_OF_CAMERAS = len(initial_configs)
 initial_configs = initial_configs.drop(columns=['Camera ID'])
 initial_configs = torch.tensor(initial_configs.values).float().to(device)
 
-fiducials = torch.tensor(pd.read_csv("fiducials_cube_corners.csv").values).float().to(device)
+fiducials = torch.tensor(pd.read_csv("calib_objects/fiducials_cube_corners.csv").values).float().to(device)
 NUMBER_OF_FIDUCIALS = len(fiducials)
-utilities.cprint(f'Number of fiducials: {NUMBER_OF_FIDUCIALS}', type="DEBUG")
+print(f'Number of fiducials: {NUMBER_OF_FIDUCIALS}')
 FIDUCIAL_CENTROID = np.mean(fiducials.cpu().numpy(), axis=0)
-utilities.cprint(f'Fiducial centroid: {FIDUCIAL_CENTROID}', type="DEBUG")
+print(f'Fiducial centroid: {FIDUCIAL_CENTROID}')
 FIDUCIAL_EXTENT = np.max(np.linalg.norm(fiducials.cpu().numpy() - FIDUCIAL_CENTROID, axis=1))
 CAMERA_CENTROID = np.mean(initial_configs[:,3:6].cpu().numpy(), axis=0)
-utilities.cprint(f'Camera centroid: {CAMERA_CENTROID}', type="DEBUG")
-RADIUS = 850.138916015625 # This comes from the camcalib_as_opt.py; Basically, you triangulate based on the initial configuration to get an estimate of the radius of the hemisphere 
-utilities.cprint(f'Hemisphere radius: {RADIUS}', type="DEBUG")
+print(f'Camera centroid: {CAMERA_CENTROID}')
+RADIUS = 850.138916015625 # this is the radius of the robotic arm; you can tune this radius to your specific use
+print(f'Hemisphere radius: {RADIUS}')
 
 
 # 2. Network
@@ -238,7 +246,7 @@ def load_checkpoint(model, optimizer, filename):
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     STARTING_EPOCH = checkpoint['epoch']
-    utilities.cprint(f'Starting epoch: {STARTING_EPOCH}')
+    print(f'Starting epoch: {STARTING_EPOCH}')
 
 def loss_fn(predicted_camera_poses, target_camera_poses):
     # predicted [B, Nc, 21]
@@ -276,7 +284,6 @@ def loss_fn(predicted_camera_poses, target_camera_poses):
 # Define the model and optimizer
 model = DGCCNet()
 model = model.to(device)
-utilities.cprint(f'Optimized parameters: {utilities.count_model_parameters(model)}', type="INFO")
 optimizer = optim.Adam([
     {'params': model.encoder.parameters(), 'lr': LEARNING_RATES[0]},
     {'params': model.R.parameters(), 'lr': LEARNING_RATES[1]},
@@ -307,7 +314,7 @@ if 'train' in args.mode:
         # Step 1: Generate random camera poses
         camera_poses, expanded_camera_poses, projected_points = camera_pose_synth.random_poses()
         if torch.isnan(projected_points).any():
-            utilities.cprint(f"\nNaN encountered in the projected points: \n{projected_points}", type='CRITICAL')
+            print(f"\nNaN encountered in the projected points: \n{projected_points}")
             break
     
         # Step 2: normalize input using data's std and mean
@@ -318,7 +325,7 @@ if 'train' in args.mode:
         # Step 3: Feed the rendered images into the model
         predicted_camera_poses = model(normalized_projected_points) # [B, Nc, Nf, 2] -> [B, Nc, 18]
         if torch.isnan(predicted_camera_poses).any():
-            utilities.cprint(f"\nNaN encountered in predicted values: \n{predicted_camera_poses}", type='CRITICAL')
+            print(f"\nNaN encountered in predicted values: \n{predicted_camera_poses}")
             break
         
         # Step 4: Calculate the loss; expand the parameters from 18 to 21
@@ -357,7 +364,7 @@ if 'train' in args.mode:
         writer.add_scalar('Loss/l1_norm', l1_norm, epoch)
 
         if torch.isnan(total_loss).any():
-            utilities.cprint("\nNaN loss encountered", type='CRITICAL')
+            print("\nNaN loss encountered")
             break
 
         if epoch > WARMUP_EPOCHS and total_loss < best_loss:
@@ -372,7 +379,7 @@ if 'train' in args.mode:
         # Form a single string with all learning rates
         lr_str = ", ".join([f"{param_group['lr']:.6f}" for param_group in optimizer.param_groups])
 
-        utilities.cprint(f'\rEpoch {epoch + 1}/{EPOCHS}, LR: {lr_str}, EXTRINSIC_VARIATION: {EXTRINSIC_VARIATION}, INTRINSIC_VARIATION: {INTRINSIC_VARIATION}, Loss: {total_loss.item()}', type="INFO", end='')
+        print(f'\rEpoch {epoch + 1}/{EPOCHS}, LR: {lr_str}, EXTRINSIC_VARIATION: {EXTRINSIC_VARIATION}, INTRINSIC_VARIATION: {INTRINSIC_VARIATION}, Loss: {total_loss.item()}')
 
         # Step 6: Report and visualize every 1000
         if epoch%1000 == 0:
@@ -410,7 +417,6 @@ if 'train' in args.mode:
 
                 # Show plot
                 fig.write_html(f"output/multi_camera_system_epoch_{epoch}_instance_{b}.html")
-                # fig.write_image("cameras/epoch_{:06d}.png".format(epoch))
                 fig.write_image(f"output/multi_camera_system_epoch_{epoch}_instance_{b}.png")
 
                 # Print the prediction/target values; scale down the values
@@ -429,30 +435,30 @@ if 'train' in args.mode:
                 rotation_matrix = predicted_camera_poses[:,:9].detach().cpu().numpy().reshape(NUMBER_OF_CAMERAS,3,3)
                 gt_rotation_matrix = camera_poses[:,:9].detach().cpu().numpy().reshape(NUMBER_OF_CAMERAS,3,3)
                 for cam in range(0,NUMBER_OF_CAMERAS):
-                    utilities.cprint(f"Batch {b}, Camera {cam}:", type="INFO")
+                    print(f"Batch {b}, Camera {cam}:")
                     rotation_matrix_cam = rotation_matrix[cam,:]
 
                     # Check orthogonality
                     orthogonal_check = np.allclose(np.dot(rotation_matrix_cam, rotation_matrix_cam.T), np.identity(3), atol=1e-6)
-                    utilities.cprint(f"Orthogonality check: {orthogonal_check}", type="WARNING")
+                    print(f"Orthogonality check: {orthogonal_check}")
 
                     # Check determinant
                     determinant_check = np.allclose(np.linalg.det(rotation_matrix_cam), 1, atol=1e-6)
-                    utilities.cprint(f"Determinant check: {determinant_check}", type="WARNING")
+                    print(f"Determinant check: {determinant_check}")
 
                     gt_rotation_matrix_cam = gt_rotation_matrix[cam,:]
                     t_cam  = predicted_camera_poses[cam,9:12].detach().cpu().numpy()
                     gt_t_cam  = camera_poses[cam,9:12].detach().cpu().numpy()
-                    utilities.cprint(f"Predicted rotation is {Rotation.from_matrix(rotation_matrix_cam).as_rotvec().reshape(3,)}", type="DEBUG")
-                    utilities.cprint(f'{rotation_matrix_cam}', type="DEBUG")
-                    utilities.cprint(f'GT rotation is {Rotation.from_matrix(gt_rotation_matrix_cam).as_rotvec().reshape(3,)}', type="DEBUG")
-                    utilities.cprint(f'{gt_rotation_matrix_cam}', type="DEBUG")
+                    print(f"Predicted rotation is {Rotation.from_matrix(rotation_matrix_cam).as_rotvec().reshape(3,)}")
+                    print(f'{rotation_matrix_cam}')
+                    print(f'GT rotation is {Rotation.from_matrix(gt_rotation_matrix_cam).as_rotvec().reshape(3,)}')
+                    print(f'{gt_rotation_matrix_cam}')
 
-                    utilities.cprint(f'Predicted translation is {t_cam}', type="DEBUG") #- r_base_inv.dot(t_base))
-                    utilities.cprint(f'GT translation is {gt_t_cam}', type="DEBUG")
+                    print(f'Predicted translation is {t_cam}') #- r_base_inv.dot(t_base))
+                    print(f'GT translation is {gt_t_cam}')
 
                     if not (orthogonal_check and determinant_check):
-                        utilities.cprint("Not an orthonormal matrix", type="CRITICAL")
+                        print("Not an orthonormal matrix")
                         exit(0)    
     
 
@@ -465,7 +471,7 @@ elif 'test' in args.mode:
     # Load the best saved checkpoint
     model_name = "best_model_checkpoint.pth.tar"
     load_checkpoint(model, optimizer, model_name)
-    utilities.cprint('Loaded the last best checkpoint', type="INFO")
+    print('Loaded the last best checkpoint')
     
     # Keep all samples' reprojection error in a list
     all_reprojection_errors = []
@@ -484,7 +490,7 @@ elif 'test' in args.mode:
         # Step 1: Generate random camera poses
         camera_poses, expanded_camera_poses, projected_points = camera_pose_synth.random_poses()
         if torch.isnan(projected_points).any():
-            utilities.cprint(f"\nNaN encountered in the projected points: \n{projected_points}", type='CRITICAL')
+            print(f"\nNaN encountered in the projected points: \n{projected_points}")
             break
     
         # Step 2: normalize input using data's std and mean
@@ -495,17 +501,17 @@ elif 'test' in args.mode:
         # Step 3: Feed the rendered images into the model
         predicted_camera_poses = model(normalized_projected_points) # [B, Nc, Nf, 2] -> [B, Nc, 18]
         if torch.isnan(predicted_camera_poses).any():
-            utilities.cprint(f"\nNaN encountered in predicted values: \n{predicted_camera_poses}", type='CRITICAL')
+            print(f"\nNaN encountered in predicted values: \n{predicted_camera_poses}")
             break
         
         # Step 4: Calculate the loss; expand the parameters from 18 to 21
         expanded_predicted_poses = expand_parameters(predicted_camera_poses, SMALL_VALUE_SCALE) #[B, Nc, 21]
         rmse_loss, logcosh_loss, geodesic_loss, low_dist_coeffs, similar_fc, centered_pp, reprojection_error = loss_fn(expanded_predicted_poses, expanded_camera_poses)
         all_reprojection_errors.append(reprojection_error.item())
-        utilities.cprint(f'\rEpoch {epoch + 1}/{TEST_SIZE}, Reprojection Error is: {reprojection_error.item()}, INTRINSIC_VARIATION: {INTRINSIC_VARIATION}, EXTRINSIC_VARIATION: {EXTRINSIC_VARIATION}', type="INFO", end='')
+        print(f'\rEpoch {epoch + 1}/{TEST_SIZE}, Reprojection Error is: {reprojection_error.item()}, INTRINSIC_VARIATION: {INTRINSIC_VARIATION}, EXTRINSIC_VARIATION: {EXTRINSIC_VARIATION}')
     
 
     # Calulating the mean reprojection error over all the test samples
     total_reprojection_error = sum(all_reprojection_errors) / len(all_reprojection_errors)
-    utilities.cprint(f'\rMean of error is: {total_reprojection_error}', type="INFO", end='')
+    print(f'\rMean of error is: {total_reprojection_error}', type="INFO", end='')
  

@@ -13,14 +13,14 @@ from torch.utils.tensorboard import SummaryWriter
 
 # Load my common files
 import sys
-sys.path.insert(1, '/home/charalambos/Documents/CODE/Common')
+# sys.path.insert(1, '/home/charalambos/Documents/CODE/Common')
 
-import utilities
+# import utilities
 import networks
 import draw_utilities
 
 # Clear the console
-utilities.clear_console()
+# utilities.clear_console()
 
 # clean up previous stuff
 torch.cuda.empty_cache()
@@ -28,13 +28,13 @@ torch.cuda.empty_cache()
 # initialize the seed
 torch.manual_seed(42)
 
-utilities.set_print_mode('DEBUG')
+# utilities.set_print_mode('DEBUG')
 
 # check if there is a GPU or CPU
 number_of_devices = torch.cuda.device_count()
-utilities.cprint(f'Number of GPU devices: {number_of_devices}', type='DEBUG')
+print(f'Number of GPU devices: {number_of_devices}')
 device = torch.device('cuda' if torch.cuda.is_available() else torch.device('cpu'))
-utilities.cprint(f'Using {device}', type='DEBUG')
+print(f'Using {device}')
 ###################################################################################
 
 import torch.nn as nn
@@ -216,7 +216,7 @@ class CameraPoseSynthesizer:
                 projected_points, not_all_visible = project_points(self.fiducials, expanded_camera_poses.unsqueeze(dim=0), self.small_value_scale, self.image_width, self.image_height, verbose=False)
                 projected_points = projected_points.squeeze(dim=0).to(device)
                 if torch.isnan(projected_points).any():
-                    utilities.cprint(f"\nNaN encountered in the input: \n{projected_points}", type='CRITICAL')
+                    print(f"\nNaN encountered in the input: \n{projected_points}")
                     break
 
                 # Save the images of the projected points
@@ -227,7 +227,7 @@ class CameraPoseSynthesizer:
                 else:
                     failure_counter += 1
                     if failure_counter % 100 == 0:
-                        utilities.cprint(f'Synthesizing camera poses: {failure_counter} failed attempts.', type="WARNING")
+                        print(f'Synthesizing camera poses: {failure_counter} failed attempts.')
 
             batch_camera_poses.append(instance_multi_cam_poses)  #current instance
             batch_expanded_camera_poses.append(expanded_camera_poses)
@@ -249,7 +249,7 @@ if __name__ == '__main__':
     camera_poses, expanded_camera_poses, projected_points = camera_pose_synth.random_poses()
 
     for i in range(0, camera_poses.shape[0]):
-        utilities.cprint(f'Batch {i+1}/{camera_poses.shape[0]}', type='INFO')
+        print(f'Batch {i+1}/{camera_poses.shape[0]}')
         for j in range(0, camera_poses.shape[1]):
-            utilities.cprint(f'Camera {j+1}/{camera_poses.shape[1]}: {camera_poses[i][j]}', type='INFO')
+            print(f'Camera {j+1}/{camera_poses.shape[1]}: {camera_poses[i][j]}')
     

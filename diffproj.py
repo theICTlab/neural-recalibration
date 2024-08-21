@@ -13,14 +13,14 @@ from torch.utils.tensorboard import SummaryWriter
 
 # Load my common files
 import sys
-sys.path.insert(1, '/home/charalambos/Documents/CODE/Common')
+# sys.path.insert(1, '/home/charalambos/Documents/CODE/Common')
 
-import utilities
+# import utilities
 import networks
 import draw_utilities
 
 # Clear the console
-utilities.clear_console()
+# utilities.clear_console()
 
 # clean up previous stuff
 torch.cuda.empty_cache()
@@ -28,13 +28,13 @@ torch.cuda.empty_cache()
 # initialize the seed
 torch.manual_seed(42)
 
-utilities.set_print_mode('DEBUG')
+# utilities.set_print_mode('DEBUG')
 
 # check if there is a GPU or CPU
 number_of_devices = torch.cuda.device_count()
-utilities.cprint(f'Number of GPU devices: {number_of_devices}', type='DEBUG')
+print(f'Number of GPU devices: {number_of_devices}')
 device = torch.device('cuda' if torch.cuda.is_available() else torch.device('cpu'))
-utilities.cprint(f'Using {device}', type='DEBUG')
+print(f'Using {device}')
 ###################################################################################
 
 import torch.nn as nn
@@ -101,7 +101,7 @@ def project_points(points, expanded_params, small_value_scale, image_width, imag
             
             # If there are points behind the camera
             if verbose and torch.any(mask_behind_camera):
-                utilities.cprint(f"Batch {i}, Camera {j}: At least one point is behind the camera.", type="DEBUG")
+                print(f"Batch {i}, Camera {j}: At least one point is behind the camera.")
             
             # Project points to the image plane using the intrinsic matrix
             P_image = torch.mm(K, P)
@@ -112,7 +112,7 @@ def project_points(points, expanded_params, small_value_scale, image_width, imag
                 X = P_image[0, :] / P_image[2, :]
                 Y = P_image[1, :] / P_image[2, :]
             else:
-                utilities.cprint('Z is less than epsilon.', type='CRITICAL')
+                print('Z is less than epsilon.')
                 exit()
 
             # Normalize and center coordinates around the principal point

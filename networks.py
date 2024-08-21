@@ -11,10 +11,10 @@ import torch
 import torchvision
 from torch.utils.tensorboard import SummaryWriter
 
-import utilities
+# import utilities
 
 # Clear the console
-utilities.clear_console()
+# utilities.clear_console()
 
 # clean up previous stuff
 torch.cuda.empty_cache()
@@ -22,13 +22,13 @@ torch.cuda.empty_cache()
 # initialize the seed
 torch.manual_seed(1234)
 
-utilities.set_print_mode('DEBUG')
+# utilities.set_print_mode('DEBUG')
 
 # check if there is a GPU or CPU
 number_of_devices = torch.cuda.device_count()
-utilities.cprint(f'Number of GPU devices: {number_of_devices}', type='DEBUG')
+print(f'Number of GPU devices: {number_of_devices}')
 device = torch.device('cuda' if torch.cuda.is_available() else torch.device('cpu'))
-utilities.cprint(f'Using {device}', type='DEBUG')
+print(f'Using {device}')
 ###################################################################################
 import numpy
 import matplotlib.pyplot as plt
