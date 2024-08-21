@@ -1,4 +1,4 @@
-# Neural Recalibration for Multi-Camera Systems
+# Neural Real-Time Recalibration for Infrared Multi-Camera Systems
 Official repo of "Neural Real-Time Recalibration for Infrared Multi-Camera Systems".
 
 We provide two variants: one for point-based calibration (`neural_recalib_point.py`) and another for image-based calibration (`neural_recalib_image.py`). The calibration process involves training a neural model specific to a pair of calibration object and camera configuration.
@@ -59,21 +59,21 @@ To perform training or testing, use the following command:
 ```bash
 python3 [neural_recalib_point.py | neural_recalib_image.py] --mode [train | test] --load_last_best [y | n]
 ```
-- `[neural_recalib_point.py | neural_recalib_image.py]`: The chosen neural recalibration variant. *Note, that we only provide sample data for the point-based variant.*
+- `[neural_recalib_point.py | neural_recalib_image.py]`: The chosen neural recalibration variant. *Note: we only provide sample data for the point-based variant.*
 - `--mode [train | test]`: Specifies whether to train a new model or test an existing one.
 - `--load_last_best [y | n]`: Specifies whether to load the last best model (y) or start fresh (n).
 
 ### Examples
 
-- For point-based calibration:
+- For point-based calibration training:
 ```bash
 python3 neural_recalib_point.py --mode train --load_last_best n
 ```
 This command starts training a new model using point-based calibration without loading any previously saved model.
 
-- For image-based calibration:
+- For image-based calibration testing:
 ```bash
-python3 neural_recalib_image.py --mode train --load_last_best n
+python3 neural_recalib_image.py --mode test --load_last_best y
 ```
 This command tests an image-based calibration model using the last best-trained model.
 
