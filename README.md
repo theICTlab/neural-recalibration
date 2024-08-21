@@ -83,6 +83,8 @@ For an overview of how the training progresses, see the animation below:
 
 ![Training Progression](example_training/training_progression.gif)
 
+The red circles are the predicted camera poses, and the blue circles are the ground truth camera poses. The yellow indicates the first camera in each multi-camera setup.
+
 ---
 
 ## License
