@@ -24,6 +24,7 @@ We provide two variants: one for point-based calibration (`neural_recalib_point.
   - **camera_pose_synthesis.py**
   - **diffproj.py**
   - **draw_utilities.py**
+  - **environment.yml**
   - **generate_camera_parameters.py**
   - **networks.py**
   - **neural_recalib_image.py**
@@ -33,30 +34,54 @@ We provide two variants: one for point-based calibration (`neural_recalib_point.
 - **README.md**: This file.
 - **LICENSE**: Licensing information for this work.
 
+## Getting Started
+
+### 1. Clone the Repository
+
+First, clone this repository to your local machine:
+
+```bash
+git clone https://github.com/theICTlab/neural-recalibration.git
+cd neural-recalibration
+```
+
+### 2. Create and Activate a Conda Environment
+
+```bash
+conda env create -f environment.yml
+conda activate neural-recalibration
+```
+
 ## Usage
 
-To perform training or testing, use the following commands:
+To perform training or testing, use the following command:
+
+```bash
+python3 [neural_recalib_point.py | neural_recalib_image.py] --mode [train | test] --load_last_best [y | n]
+```
+- `[neural_recalib_point.py | neural_recalib_image.py]`: The chosen neural recalibration variant. *Note, that we only provide sample data for the point-based variant.*
+- `--mode [train | test]`: Specifies whether to train a new model or test an existing one.
+- `--load_last_best [y | n]`: Specifies whether to load the last best model (y) or start fresh (n).
+
+### Examples
 
 - For point-based calibration:
-```
+```bash
 python3 neural_recalib_point.py --mode train --load_last_best n
 ```
+This command starts training a new model using point-based calibration without loading any previously saved model.
 
 - For image-based calibration:
-```
+```bash
 python3 neural_recalib_image.py --mode train --load_last_best n
 ```
+This command tests an image-based calibration model using the last best-trained model.
 
 ## Training Progression
 
 For an overview of how the training progresses, see the animation below:
 
-![Training Progression](training_progression.gif)
-
-## Dependencies
-
-To run the code, you need to install the following dependencies. Please provide the list of dependencies, and I will include them here.
-
+![Training Progression](example_training/training_progression.gif)
 
 ---
 
