@@ -87,8 +87,6 @@ The red circles are the predicted camera poses, and the blue circles are the gro
 
 ## Citation
 ```
-### Citation
-```
 @article{
 }
 ```
