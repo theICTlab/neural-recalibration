@@ -1,6 +1,8 @@
 # Neural Real-Time Recalibration for Infrared Multi-Camera Systems
 Official repo of "Neural Real-Time Recalibration for Infrared Multi-Camera Systems".
 
+**Summary:** In real-world scenarios, multi-camera systems often experience deviations from the OEM camera calibration parameters due to factors like debris accumulation on fiducials or lenses, which is especially common in medical environments. _Currently, no existing learning-free or neural methods enable real-time recalibration of infrared multi-camera systems._ This method offers <ins>real-time</ins> <ins>recalibration</ins> of <ins>infrared</ins> multi-camera systems using OEM calibration parameters as a baseline. It predicts both intrinsic and extrinsic camera parameters, accommodating up to 20% perturbations from the original OEM calibration.
+
 We provide two variants: one for point-based calibration (`neural_recalib_point.py`) and another for image-based calibration (`neural_recalib_image.py`). The calibration process involves training a neural model specific to a pair of calibration object and camera configuration.
 
 ## Contents
