@@ -78,7 +78,7 @@ colors = [
 bgr_colors = [(b, g, r) for (r, g, b) in colors]
 
 
-
+#The following function is adapted from: https://arxiv.org/pdf/1812.07035
 def compute_ortho6d_from_rotation_matrix(matrix):
     # Extract the first two columns from the 3x3 rotation matrix
     x = matrix[:, :, 0]  # batch*3
@@ -93,6 +93,7 @@ def compute_ortho6d_from_rotation_matrix(matrix):
     
     return ortho6d
 
+#The following function is adapted from: https://arxiv.org/pdf/1812.07035
 # batch*n
 def normalize_vector( v, return_mag =False):
     batch=v.shape[0]
@@ -105,6 +106,7 @@ def normalize_vector( v, return_mag =False):
     else:
         return v
 
+#The following function is adapted from: https://arxiv.org/pdf/1812.07035
 # u, v batch*n
 def cross_product( u, v):
     batch = u.shape[0]
@@ -118,7 +120,7 @@ def cross_product( u, v):
         
     return out
       
-
+#The following function is adapted from: https://arxiv.org/pdf/1812.07035
 #matrices batch*3*3
 #both matrix are orthogonal rotation matrices
 #out theta between 0 to 180 degree batch
@@ -140,6 +142,7 @@ def compute_geodesic_distance_from_two_matrices(m1, m2):
     
     return theta
     
+#The following function is adapted from: https://arxiv.org/pdf/1812.07035
 #poses batch*6
 #poses
 def compute_rotation_matrix_from_ortho6d(ortho6d):
