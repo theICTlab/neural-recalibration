@@ -89,7 +89,11 @@ The red circles are the predicted camera poses, and the blue circles are the gro
 
 ## Citation
 ```
-@article{
+@article{mehmandar2024neural,
+  title={Neural Real-Time Recalibration for Infrared Multi-Camera Systems},
+  author={Mehmandar, Benyamin and Talakoob, Reza and Poullis, Charalambos},
+  journal={arXiv preprint arXiv:2410.14505},
+  year={2024}
 }
 ```
 
