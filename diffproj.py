@@ -13,14 +13,9 @@ from torch.utils.tensorboard import SummaryWriter
 
 # Load my common files
 import sys
-# sys.path.insert(1, '/home/charalambos/Documents/CODE/Common')
 
-# import utilities
 import networks
 import draw_utilities
-
-# Clear the console
-# utilities.clear_console()
 
 # clean up previous stuff
 torch.cuda.empty_cache()
@@ -28,13 +23,8 @@ torch.cuda.empty_cache()
 # initialize the seed
 torch.manual_seed(42)
 
-# utilities.set_print_mode('DEBUG')
-
 # check if there is a GPU or CPU
-number_of_devices = torch.cuda.device_count()
-print(f'Number of GPU devices: {number_of_devices}')
 device = torch.device('cuda' if torch.cuda.is_available() else torch.device('cpu'))
-print(f'Using {device}')
 ###################################################################################
 
 import torch.nn as nn
@@ -56,7 +46,7 @@ import plotly.graph_objects as go
 epsilon = 1e-5
 
 # 2. Camera projection function
-def project_points(points, expanded_params, small_value_scale, image_width, image_height, verbose=True):
+def project_points(points, expanded_params, small_value_scale, image_width, image_height, verbose=False):
     # expanded_params [B, Nc, 21]
 
     batch_projected_points = []

@@ -8,30 +8,9 @@
 
 ################################ BOILERPLATE CODE ################################
 import torch
-import torchvision
-from torch.utils.tensorboard import SummaryWriter
-
-# import utilities
-
-# Clear the console
-# utilities.clear_console()
-
-# clean up previous stuff
-torch.cuda.empty_cache()
-
-# initialize the seed
-torch.manual_seed(1234)
-
-# utilities.set_print_mode('DEBUG')
-
-# check if there is a GPU or CPU
-number_of_devices = torch.cuda.device_count()
-print(f'Number of GPU devices: {number_of_devices}')
-device = torch.device('cuda' if torch.cuda.is_available() else torch.device('cpu'))
-print(f'Using {device}')
-###################################################################################
 import numpy
 import matplotlib.pyplot as plt
+###################################################################################
 
 # A linear layer
 class MLP(torch.nn.Module):

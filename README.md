@@ -54,6 +54,11 @@ conda env create -f environment.yml
 conda activate neural-recalibration
 ```
 
+## Gradio demo
+```bash
+python3 demo.py
+```
+
 ## Usage
 
 To perform training or testing, use the following command:

@@ -382,7 +382,7 @@ if 'train' in args.mode:
         print(f'\rEpoch {epoch + 1}/{EPOCHS}, LR: {lr_str}, EXTRINSIC_VARIATION: {EXTRINSIC_VARIATION}, INTRINSIC_VARIATION: {INTRINSIC_VARIATION}, Loss: {total_loss.item()}')
 
         # Step 6: Report and visualize every 1000
-        if epoch%1000 == 0:
+        if epoch != 0 and epoch%1000 == 0:
             # You can avoid plotting all the batch to speed up the process!
             for b in range(BATCH_SIZE):
                 # Initialize Plotly 3D scatter plot
